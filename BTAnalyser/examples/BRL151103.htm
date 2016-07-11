@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BRL Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <script lang="JavaScript">
+        var lastevent = "null";
+        var vector= "null";
+        var pointer = "null";
+        var label = "null";
+        
+        function onBRLKey() {
+            lastevent = "BRLKey";
+            updateStatus();
+            lastevent = "null";
+        }
+        function onLeftClick() {          
+            lastevent = "LeftClick";
+            updateStatus();
+            lastevent = "null";
+
+        }
+        function onEscape() {
+            lastevent = "Escape";
+            updateStatus();
+            lastevent = "null";
+
+        }
+        
+        function onMovePointerOverTrack() {
+            pointer ="OnTrack";
+            updateStatus();
+            lastevent = "null";
+        }       
+        function onMovePointerOverPoint() {         
+            pointer ="OnPoint";
+            updateStatus();
+            lastevent = "null";
+        }       
+        function onMovePointerOverVectorStart() {
+            
+            pointer ="OverVectorStart";
+            updateStatus();
+            lastevent = "null";
+        }
+        
+        function onReset() {
+            lastevent = "null";
+            pointer = "null";
+            label = "null";
+            vector = "null";
+            error = "null";
+            updateStatus();
+        }      
+        
+        function updateStatus() {
+            
+            if ( lastevent == "BRLKey" && vector == "null" && pointer == "OnTrack" ) {
+                vector = "dynamic"; pointer == "OverVectorStart"; label = "TrackTrack";
+			}
+            else if( lastevent == "LeftClick" && vector == "dynamic" && pointer == "OnTrack") {
+                    vector = "fixed"; label = "TrackTrack"; error = "null";
+                }
+            else if( lastevent == "LeftClick" && vector == "dynamic" && pointer == "OnPoint") {
+                    vector = "fixed"; label = "TrackPoint"; error = "null";
+                }
+            else if( lastevent == "null" && vector == "dynamic" && pointer == "OnTrack") {
+                    label = "TrackTrack"; error = "null";
+                }
+            else if( lastevent == "null" && vector == "dynamic" && pointer == "OnPoint") {
+                    label = "TrackPoint"; error = "null";
+		  }
+            else if( lastevent == "LeftClick" && vector == "dynamic" && pointer == "OverVectorStart") {
+                    error = "OverVectorStart";
+                }
+            else if( lastevent == "Escape" && vector == "fixed") {
+                    vector = "null"; label = "null"; 
+                }
+		{lastevent = "null";}
+
+            if(vector == "null")
+                {document.getElementById("MovePointerOverVectorStart").disabled = true;}
+            else
+                 {document.getElementById("MovePointerOverVectorStart").disabled = false;}
+            
+            
+            //document.getElementById("lasteventstatus").value = lastevent;
+            //document.getElementById("keyboardstatus").value = keyboard;
+            document.getElementById("pointerstatus").value = pointer;
+            document.getElementById("vectorstatus").value = vector;
+            document.getElementById("labelstatus").value = label;
+            document.getElementById("errorstatus").value = error;
+            //lastevent = "null";
+        }
+             
+    </script>
+     <table class="table table-striped table-bordered table-condensed">
+        <th>Button Actions</th>
+        <th>Pointer</th>
+        <th>Current State</th>
+        
+         <tr>
+            <td>
+                <input type="button" class="btn btn-success  btn-block" id="BRLKey" value="BRL Key" onclick="return onBRLKey();"/><br />
+                <input type="button" class="btn btn-success  btn-block" id="LeftClick" value="Left Click" onclick="return onLeftClick();"/><br/>
+                <input type="button" class="btn btn-primary  btn-block" id="Escape" value="Escape" onclick="return onEscape();"/>
+            </td>
+            <td>
+                <input type="button" class="btn btn-primary  btn-block" id="MovePointerOverTrack" value="Move Pointer Over Track" 
+                       onclick="return onMovePointerOverTrack();"/><br />
+                <input type="button" class="btn btn-success  btn-block" id="MovePointerOverPoint" value="Move Pointer Over Point" 
+                       onclick="return onMovePointerOverPoint();"/><br />
+                <input type="button" class="btn btn-primary  btn-block" id="MovePointerOverVectorStart" value="Move Pointer Over Vector Start"
+                       onclick="return onMovePointerOverVectorStart();" disabled="true"/><br />
+            </td>
+           
+            <td>
+                <table class="table">
+                    <tr>
+                        <td>Pointer</td>
+                        <td><input type="text" id="pointerstatus" class="form-control" value="null" disabled="true"></td>
+                    </tr>
+                    <tr>
+                        <td>Vector</td>
+                        <td><input type="text" id="vectorstatus"  class="form-control" value="null"  disabled="true"  ></td>
+                    </tr>
+                    <tr>
+                        <td>Label</td>
+                        <td><input type="text" id="labelstatus"  class="form-control" value="null"  disabled="true"></td>
+                    </tr>
+                    <tr>
+                        <td>Error</td>
+                        <td><input type="text" id="errorstatus"  class="form-control" value="null"  disabled="true"></td>
+                    </tr>                    
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-striped table-bordered table-condensed">
+        <tr>
+            <td><input type="button" class="btn btn-success  btn-block" id="Reset" value="Reset" onclick="return onReset();"/></td>
+        </tr>
+    </table>
+</body>
+</html>

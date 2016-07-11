@@ -1,0 +1,211 @@
+#RT R1 1 R2 2 R3 3 R4 4 R4E 4E R5 5 R6 6 R7 7 R8 8 R9 9  R10 10 R11 11 R11a 11a R11b 11b R12 12 R13 13 R13E 13E R14 14 R15 15 R16 16 R16a 16a R16b 16b R17 17 R18 18 R19 19 R20 20 R21 21 R22 22 R23 23 R24 24 R25 25 R26 26 R27 27 R28 28 R29 29 R30 30 R31 31 R32 32 R33 33 
+R34	34
+R35	35
+R36	36
+R37	37
+R38	38
+R39	39
+R40	40
+R41 41
+R41a 41a 
+R41b 41b
+R42	42
+R43	43
+R44	44
+R45	45
+R46	46
+R47	47
+R48	48
+R49	49
+R50	50
+R51	51
+R52	52
+R53	53
+R54	54
+R55	55
+R56	56
+R57	57
+R58	58
+R59	59
+R60	60
+R61	61
+R62	62
+R63	63
+R64	64
+
+#C	C1 Cache			
+#S	1	i:=I
+#S	2	i:=S
+#S	3	i:=E
+#A 10 ||i:{1,2,3}
+#A 11 []i:{1,2,3}
+#A 12 ||&i:{1,2,3}
+#L	21	i=I
+#L	22	i=S
+#L	23	i=E
+#L 24 NOT(i=E)
+	
+#C	C2 Chan1			
+#S	1	i:=Empty
+#S	2	i:=ReqS
+#S	3	i:=ReqE
+#S	4	i:=Inv
+#S	5	i:=InvAck
+#S	6	i:=GntS
+#S	7	i:=GntE
+#A 10 ||i:{1,2,3}
+#A 11 []i:{1,2,3}
+#A 12 ||&i:{1,2,3}
+#L	21	i=Empty
+#L	22	i=ReqS
+#L	23	i=ReqE
+#L	24	i=Inv
+#L	25	i=InvAck
+#L	26	i=GntS
+#L	27	i=GntE
+
+#C	C3 Chan2	
+#S	1	i:=Empty
+#S	2	i:=ReqS
+#S	3	i:=ReqE
+#S	4	i:=Inv
+#S	5	i:=InvAck
+#S	6	i:=GntS
+#S	7	i:=GntE
+#A 10 ||i:{1,2,3}
+#A 11 []i:{1,2,3}
+#A 12 ||&i:{1,2,3}
+#L	21	i=Empty
+#L	22	i=ReqS
+#L	23	i=ReqE
+#L	24	i=Inv
+#L	25	i=InvAck
+#L	26	i=GntS
+#L	27	i=GntE
+#L 28 NOT(i=GntE)
+
+#C	C4 Chan3	
+#S	1	i:=Empty
+#S	2	i:=ReqS
+#S	3	i:=ReqE
+#S	4	i:=Inv
+#S	5	i:=InvAck
+#S	6	i:=GntS
+#S	7	i:=GntE
+#A 10 ||i:{1,2,3}
+#A 11 []i:{1,2,3}
+#A 12 ||&i:{1,2,3}
+#L	21	i=Empty
+#L	22	i=ReqS
+#L	23	i=ReqE
+#L	24	i=Inv
+#L	25	i=InvAck
+#L	26	i=GntS
+#L	27	i=GntE
+#L 28 NOT(i=InvAck)
+
+#C	C5 InvSet
+#S	1	i:=true
+#S	2	i:=false
+#A 10 ||i:{1,2,3}
+#A 11 []i:{1,2,3}
+#A 12 ||&i:{1,2,3}
+#L 21 i=false
+#L 22 NOT(i=false)
+
+#C	C6 ShrSet
+#S	1	i:=true
+#S	2	i:=false
+#A 10 ||i:{1,2,3}
+#A 11 []i:{1,2,3}
+#A 12 ||&i:{1,2,3}
+#L 21 i=false
+#L 22 NOT(i=false)
+
+#C C7 ExGntd
+#S 1 true
+#S 2 false
+#L 3 true
+#L 4 NOT(true)
+
+#C C8 CurCmd
+#S	1 Empty
+#S	2 ReqS
+#S	3 ReqE
+#S	4 Inv
+#S	5 InvAck
+#S	6 GntS
+#S	7 GntE
+#L	11 Empty
+#L	12 ReqS
+#L	13 ReqE
+#L	14 Inv
+#L	15 InvAck
+#L	16 GntS
+#L	17 GntE
+#L	21 NOT(Empty)
+
+#C C9 CurPtr
+#S 1 i
+#L 2 i
+#S 3 null
+#S 4 other
+#L 5 other
+ 
+#C C10 Dummy
+#S 1 tick
+#S 2 i:=true
+#S 3 i:=false
+#S 4 branch
+#A 12 ||&i:{1,2,3}
+#G 21 i=true
+
+#C C11 Action
+#E	11	SendReqS(i)	
+#E	12	SendReqE(i)	
+#E	13	SendReqE(i)	
+#E	14	RecvReqS(i)	
+#E	15	RecvReqE(i)	
+#E	16	SendInv(i)	
+#E	17	SendInv(i)	
+#E	18	SendInvAck(i)	
+#E	19	RecvInvAck(i)	
+#E	20	SendGntS(i)	
+#E	21	SendGntE(i)	
+#E	22	RecvGntS(i)	
+#E	23	RecvGntE(i)	
+
+#T R1 C1 12;; R1 C2 1;; R2 C3 1;; R3 C4 1;; R4 C1 1;; R5 C5 2;; R6 C6 2;; R7 C7 2;; R8 C8 1;; R9 C9 3; R10 C10 1 #N{
+	R11 C2 11; R11 C11 11; R11 C2 21;; R11 C1 21; R11 C2 2; R10 C10 1 ^
+	R12 C2 11; R12 C11 12 #N{
+		R12 C2 21;; R12 C1 21; R12 C2 3; R10 C10 1 ^
+		R13 C2 21;; R13 C1 22; R12 C2 3; R10 C10 1 ^
+		}
+	R14 C2 11; R14 C11 14; R14 C8 11;; R14 C2 22; R14 C8 2;; R14 C9 1;; R14 C2 1;; R30 C10 12;; R30 C10 3 #P{
+		R31 C5 10; R31 C10 4 #N{
+			R32 C6 21; R32 C5 2; R32 C10 2
+			R33 C6 22; R33 C5 1; R33 C10 2
+		}
+		R34 C10 12;; R34 C10 21; R10 C10 1 ^
+	}
+	R15 C2 11; R15 C11 15; R15 C8 11;; R15 C2 23; R15 C8 3;; R14 C9 1;; R14 C2 1;; R30 C10 12;; R30 C10 3 #P{
+		R31 C5 10; R31 C10 4 #N{
+			R32 C6 21; R32 C5 2; R32 C10 2
+			R33 C6 22; R33 C5 1; R33 C10 2
+		}
+		R34 C10 12;; R34 C10 21; R10 C10 1 ^
+	}
+	R16 C3 11; R16 C11 16 #N{
+		R16 C3 21;; R16 C5 22;; R16 C8 13; R16 C3 4;; R16 C5 2; R10 C10 1 ^
+		R17 C3 21;; R17 C5 22;; R17 C8 12;; R17 C7 3; R16 C3 4;; R16 C5 2; R10 C10 1 ^
+		}
+	R18 C3 11; R18 C11 18; R18 C3 24;; R18 C4 21; R18 C3 1;; R18 C4 5;; R18 C1 1; R10 C10 1 ^
+	R19 C4 11; R19 C11 19; R19 C4 25;; R19 C8 21; R19 C4 1;; R19 C6 2 #N{
+		R19 C7 3; R19 C7 2; R10 C10 1 ^
+		R19 C7 4; R10 C10 1 ^
+		}
+	R20 C3 11; R20 C11 20; R20 C8 12;; R20 C9 2;; R20 C3 21;; R20 C7 4; R20 C3 6;; R20 C6 1;; R20 C8 1;; R20 C9 3; R10 C10 1 ^
+	R21 C3 11; R21 C11 21; R21 C8 13;; R21 C9 2;; R21 C3 21;; R21 C7 4;; R21 C6 12;; R21 C6 21; R21 C3 7;; R21 C6 1;; R21 C7 1;; R21 C8 1;; R21 C9 3; R10 C10 1 ^
+	R22 C3 11; R22 C11 22; R22 C3 26; R22 C1 2;; R22 C3 1; R10 C10 1 ^
+	R23 C3 11; R23 C11 23; R23 C3 27; R23 C1 3;; R22 C3 1; R10 C10 1 ^
+	}
