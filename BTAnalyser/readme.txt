@@ -648,7 +648,7 @@ There is a function for computing a gap (subpath) between the an initial path
   (test-path-gap path1 path2)
 
 Note that the resulting gap, if any, starts at the end of path1 (inclusive)
-and ends at the start of paths (exclusive).
+and ends at the start of path2 (exclusive).
 
 ---
 
