@@ -16,6 +16,7 @@ import javax.swing.table.TableCellRenderer;
 import core.Main;
 import other.Constants;
 import other.TestSegment;
+import tree.Block;
 import tree.Node;
 import util.Util;
 
@@ -43,8 +44,8 @@ public class TestPathCell extends AbstractCellEditor implements TableCellEditor,
     this.segment = segment;
 
     id.setText(" " + segment.getTestCase().getIndex().toString() + " ");
-    text.setText("<html><b>Start Node:</b> " + segment.getTestCase().getStartNode() + "<br><b>TargetNode:</b> "
-        + segment.getTestCase().getEndNode() + "<br><b>Nodes Before:</b> " + segment.getPreamble().size()
+    text.setText("<html><b>Start Node:</b> " + segment.getTestCase().getCPStartNode() + "<br><b>TargetNode:</b> "
+        + segment.getTestCase().getCPEndNode() + "<br><b>Nodes Before:</b> " + segment.getPreamble().size()
         + "<br><b>Nodes Involved:</b> " + segment.getTestCase().getNodeLength() + "</html>");
 
     if (isSelected) {
@@ -75,9 +76,25 @@ public class TestPathCell extends AbstractCellEditor implements TableCellEditor,
     	    }
     }
     sb.append("<br><b>Nodes Involved:</b> " + segment.getTestCase().getNodeLength());
-    for (Node n : segment.getTestCase().getNodeSteps()) {
-      sb.append("<br>" + Constants.htmlTabSpacing + Util.toHtml(n.toString()));
+    for (Integer i: segment.getTestCase().getSteps()) {
+    	Block b = Main.getBlock(i);
+    	for (Node n : b.getNodes()) {
+    		if (Main.isChosenNOI(n.getNodeProfile()) || Main.isChosenCP(n.getNodeProfile())
+        			|| ((i != segment.getTestCase().getStart()) && (i != segment.getTestCase().getEnd())
+        					&& (n.getFlag().equals("REVERSION") || n.getFlag().equals("REFERENCE")))) {
+        		sb.append("<br>" + Constants.htmlTabSpacing + "<b>" + Util.toHtml(n.toString()) + "</b>");
+        	} else {
+        		sb.append("<br>" + Constants.htmlTabSpacing + Util.toHtml(n.toString()));
+        	}
+    	}
     }
+//    for (Node n : segment.getTestCase().getNodeSteps()) {
+//    	if (Main.isChosenNOI(n.getNodeProfile()) || n.getFlag().equals("REVERSION") || n.getFlag().equals("REFERENCE")) {
+//    		sb.append("<br>" + Constants.htmlTabSpacing + "<b>" + Util.toHtml(n.toString()) + "</b>");
+//    	} else {
+//    		sb.append("<br>" + Constants.htmlTabSpacing + Util.toHtml(n.toString()));
+//    	}
+//    }
     sb.append("</html>");
     return sb.toString();
   }

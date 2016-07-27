@@ -3,6 +3,8 @@ package other;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import core.Main;
+import tree.Block;
 import tree.Node;
 
 public class TestCase {
@@ -63,9 +65,33 @@ public class TestCase {
   public Node getStartNode() {
     return startNode;
   }
+  
+  public Node getCPStartNode() {
+	  Block b = Main.getBlock(blockList.get(0));
+	  Node result = b.getNodes().get(0);
+	  for (Node n: b.getNodes()) {
+		  if (Main.isChosenCP(n.getNodeProfile())) {
+			  result = n;
+			  break;
+		  }
+	  }
+	  return result;
+  }
 
   public Node getEndNode() {
     return endNode;
+  }
+
+  public Node getCPEndNode() {
+	  Block b = Main.getBlock(blockList.get(blockList.size() - 1));
+	  Node result = b.getNodes().get(0);
+	  for (Node n: b.getNodes()) {
+		  if (Main.isChosenCP(n.getNodeProfile())) {
+			  result = n;
+			  break;
+		  }
+	  }
+	  return result;
   }
 
   public void setStepsBefore(ArrayList<Integer> blocksBeforeParam, ArrayList<Node> nodesBeforeParam) {
@@ -120,6 +146,15 @@ public class TestCase {
 
   public Boolean isSelected() {
     return isSelected;
+  }
+
+  @Override
+  public boolean equals(Object otherTC) {
+    if (otherTC instanceof TestCase) {
+      return getSteps().equals(((TestCase) otherTC).getSteps());
+    } else {
+      return false;
+    }
   }
 
   public void setSelected(Boolean isSelected) {

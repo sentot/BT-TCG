@@ -13,8 +13,10 @@ import javax.swing.ToolTipManager;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import core.Main;
 import other.Constants;
 import other.TestCase;
+import tree.Block;
 import tree.Node;
 import util.Util;
 
@@ -93,9 +95,27 @@ public class TestCaseCell extends AbstractCellEditor implements TableCellEditor,
       sb.append("<br>" + Constants.htmlTabSpacing + formatNode(n));
     }
     sb.append("<br><b>Nodes Involved:</b> " + path.getNodeLength());
-    for (Node n : path.getNodeSteps()) {
-      sb.append("<br>" + Constants.htmlTabSpacing + formatNode(n));
+    for (Integer i: path.getSteps()) {
+    	Block b = Main.getBlock(i);
+    	for (Node n : b.getNodes()) {
+    		if (Main.isChosenNOI(n.getNodeProfile()) || Main.isChosenCP(n.getNodeProfile())
+        			|| ((i != path.getStart()) && (i != path.getEnd())
+        					&& (n.getFlag().equals("REVERSION") || n.getFlag().equals("REFERENCE")))) {
+        		sb.append("<br>" + Constants.htmlTabSpacing + "<b>" + formatNode(n) + "</b>");
+        	} else {
+        		sb.append("<br>" + Constants.htmlTabSpacing + formatNode(n));
+        	}
+    	}
     }
+//    for (Node n : path.getNodeSteps()) {
+//    	if (Main.isChosenNOI(n.getNodeProfile())
+//    			|| n.getFlag().equals("REVERSION")
+//    			|| n.getFlag().equals("REFERENCE")) {
+//    		sb.append("<br>" + Constants.htmlTabSpacing + "<b>" + formatNode(n) + "</b>");
+//    	} else {
+//    		sb.append("<br>" + Constants.htmlTabSpacing + formatNode(n));
+//    	}     
+//    }
     sb.append("<br><b>Nodes After:</b> " + path.getNodesAfterLength());
     for (Node n : path.getNodesAfter()) {
       sb.append("<br>" + Constants.htmlTabSpacing + formatNode(n));
@@ -109,8 +129,8 @@ public class TestCaseCell extends AbstractCellEditor implements TableCellEditor,
   }
 
   private String getCellText() {
-    return "<html><b>Start Node:</b> " + path.getStartNode().toString() + "<br><b>TargetNode:</b> "
-        + path.getEndNode().toString() + "<br><b>Nodes Before:</b> " + path.getNodesBeforeLength()
+    return "<html><b>Start Node:</b> " + path.getCPStartNode().toString() + "<br><b>TargetNode:</b> "
+        + path.getCPEndNode().toString() + "<br><b>Nodes Before:</b> " + path.getNodesBeforeLength()
         + "<br><b>Nodes Involved:</b> " + path.getNodeLength()
         + "<br><b>Nodes After:</b> " + path.getNodesAfterLength() + "</html>";
   }

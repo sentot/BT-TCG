@@ -143,6 +143,8 @@ public class Main {
   private static JTable tblTCs;
   private static JTable tblTP;
 
+  static JLabel lblCurrentTestPath = new JLabel("Current Test Path (0 of 0 cases)");
+  
   private static ArrayList<TestCase> allTestCases = new ArrayList<TestCase>();
   private static ArrayList<TestSegment> testPath = new ArrayList<TestSegment>();
   
@@ -1151,6 +1153,10 @@ public class Main {
     ((TestPathModel) tblTP.getModel()).addData(testPath);
     tblTP.revalidate();
     tblTP.repaint();
+    Integer i = allTestCases.size();
+    Integer j = testPath.size();
+    lblCurrentTestPath.setText("Current Test Path (" + j + " of " + i + " cases):");
+    lblCurrentTestPath.repaint();
   }
 
   private static void populateTPTab(ArrayList<ArrayList<Integer>> rawTestCases) {
@@ -1522,9 +1528,8 @@ public class Main {
     btnGenerateTestCases.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
     	allTestCases.clear();
-        ArrayList<String> commands = createTestCaseGenCommands();
-        if ((initialNodeProfile != null) && (commands.size() > 0)) {
-          ArrayList<ArrayList<Integer>> testCases = sendTestCaseGenCommands(commands);
+    	if ((initialNodeProfile != null)) {
+          ArrayList<ArrayList<Integer>> testCases = generateTestCases();
           System.out.println("RAW TEST CASES: " + testCases.size());
           if (testCases.size() > 0) {
               populateTPTab(testCases);
@@ -1968,12 +1973,20 @@ public class Main {
 			  // Only include NOI if not also a CP
 			  if (!inCPs) {
 				  Block block = getBlock(i);
-				  for (NodeProfile prof: chosenNOISET) {
-					  if (blockContainsProfile(block,prof)) {
-						  result.add(i);
-						  break;
+				  
+				  if (block.containsReference() || block.containsReversion()) {
+					  result.add(i);
+				  } else {
+					  
+					  for (NodeProfile prof: chosenNOISET) {
+						  if (blockContainsProfile(block,prof)) {
+							  result.add(i);
+							  break;
+						  }
 					  }
+					  
 				  }
+				  
 			  }
 		  }
 	  }
@@ -2303,6 +2316,7 @@ public class Main {
 	  }
   }
   
+
   private static JPanel createTPTab() {
     JPanel panelTP = new JPanel(new GridBagLayout());
 
@@ -2341,7 +2355,7 @@ public class Main {
     label2Constraints.gridy = 0;
 	  
     /* Current Test Path Label */
-    JLabel lblCurrentTestPath = new JLabel("Current Test Path");
+    //JLabel lblCurrentTestPath = new JLabel("Current Test Path");
     lblCurrentTestPath.setFont(new Font("Tahoma", Font.PLAIN, 18));
     panelTP.add(lblCurrentTestPath,label2Constraints);
 
@@ -2393,11 +2407,11 @@ public class Main {
     			  } else {
     				  addTestSegment(new TestSegment(new ArrayList<Integer>(), tc));
     			  }
-    			  } else if (tc.isReachable()) {
-    				  if (!tc.needsPreamble()) {
-    					  insertLoopingTestCases(tc, findPrefix(), testCaseStepsForSegment(tc));
-    					  
-    					  addTestSegment(new TestSegment(new ArrayList<Integer>(), tc));
+    			  }
+    		  else if (tc.isReachable()) {
+    			  if (!tc.needsPreamble()) {
+    				  insertLoopingTestCases(tc, findPrefix(), testCaseStepsForSegment(tc));
+    				  addTestSegment(new TestSegment(new ArrayList<Integer>(), tc));
     				  } else {
     					  ArrayList<Integer> tcSteps = tc.getSteps();
     					  ArrayList<Integer> prefix = findPrefix();
@@ -2624,55 +2638,215 @@ public class Main {
 	  return result;
   }
   
-  private static ArrayList<String> createTestCaseGenCommands() {
-    ArrayList<String> commands = new ArrayList<String>();
-    ArrayList<Integer> startingBlocks = findTPSources();
-    ArrayList<Integer> endingBlocks = findTPTargets();
-    ArrayList<Integer> noiBlocks = findNOIs(endingBlocks);
-    StringBuilder sb = new StringBuilder();
-    for (int i : startingBlocks) {
-      for (int j : endingBlocks) {
-    	  String command = "(find-test-paths " + i + " " + pathToString(noiBlocks) + " " + j
-    			  + " " + pathToString(endingBlocks) + ")";
-    	  commands.add(command);
+  private static ArrayList<ArrayList<Integer>> xmlStringToRawPath (String str) {
+	  org.jdom2.input.SAXBuilder saxBuilder = new SAXBuilder();
+	  org.jdom2.Document doc = null;
+	  ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+      try {
+        doc = saxBuilder.build(new StringReader(str));
+      } catch (JDOMException | IOException e) {
+        e.printStackTrace();
       }
-    }
-    return commands;
-  }
-
-  private static ArrayList<ArrayList<Integer>> sendTestCaseGenCommands(ArrayList<String> commands) {
-    ArrayList<ArrayList<Integer>> testCases = new ArrayList<ArrayList<Integer>>();
-    for (String command : commands) {
-      String result = sbcl.sendCommand(command);
-      if (result
-          .matches("<result>(<path>(<block-index>\\d+<\\/block-index>)+<\\/path>)+<\\/result>")) {
-        org.jdom2.input.SAXBuilder saxBuilder = new SAXBuilder();
-
-        org.jdom2.Document doc = null;
-        try {
-          doc = saxBuilder.build(new StringReader(result));
-        } catch (JDOMException | IOException e) {
-          e.printStackTrace();
-        }
-
-        Element root = doc.getRootElement();
-        List<Element> paths = root.getChildren("path");
-        for (Element path: paths) {
-        	List<Element> blocks = path.getChildren("block-index");
-        	ArrayList<Integer> pathList = new ArrayList<Integer>();
-        	for (Element block: blocks) {
-        		pathList.add(Integer.parseInt(block.getValue()));
-        	}
-        	testCases.add(pathList);
-        }
-      } else if (result.matches("error\\|\\d+\\|")) {
-        printErrorMessage(result);
-        break;
+      Element root = doc.getRootElement();
+      List<Element> paths = root.getChildren("path");
+      for (Element path: paths) {
+      	List<Element> blocks = path.getChildren("block-index");
+      	ArrayList<Integer> pathList = new ArrayList<Integer>();
+      	for (Element block: blocks) {
+      		pathList.add(Integer.parseInt(block.getValue()));
+      	}
+      	result.add(pathList);
       }
-    }
-    return testCases;
+      return result;
   }
-
+  
+  private static Boolean equivalentCases (ArrayList<Integer> case1, ArrayList<Integer> case2) {
+	  Boolean result = (case1.size() == case2.size());
+	  if (result && case1.size() > 0) {
+		  Block start1 = equivalentStartingBlock(getBlock(case1.get(0)));
+		  Block start2 = equivalentStartingBlock(getBlock(case2.get(0)));
+		  if (start1 == start2) {
+			  for (Integer i = 1; i < case1.size(); i++) {
+				  if (case1.get(i) != case2.get(i)) {
+					  result = false;
+					  break;
+				  }
+			  }
+		  } else {
+			  result = false;
+		  }
+	  }
+	  return result;
+  }
+  
+  private static ArrayList<ArrayList<Integer>> generateTestCases() {
+	  ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+	  ArrayList<Integer> startingBlocks = findTPSources();
+	  ArrayList<Integer> endingBlocks = findTPTargets();
+	  ArrayList<Integer> noiBlocks = findNOIs(endingBlocks);
+	  String validPathsPattern = "<result>(<path>(<block-index>\\d+<\\/block-index>)+<\\/path>)+<\\/result>";
+	  for (Integer i : startingBlocks) {
+	      for (Integer j : endingBlocks) {
+	    	  Boolean feasible = false;
+	    	  ArrayList<ArrayList<Integer>> rawCases = new ArrayList<ArrayList<Integer>>();
+	    	  ArrayList<Integer> independentNOIs = new ArrayList<Integer>();
+	    	  // First do without NOIs
+	    	  String commandResult = sbcl.sendCommand("(find-test-paths " + i + " () " + j
+	    			  + " " + pathToString(endingBlocks) + ")");
+	    	  if (commandResult.matches(validPathsPattern)) {
+	    		  feasible = true;
+	    		  rawCases = xmlStringToRawPath(commandResult);
+	    	  }
+	    	  if (feasible) {
+	    		  // Now do with NOIs one by one
+	    		  for (Integer k: noiBlocks) {
+	    			  commandResult = sbcl.sendCommand("(find-test-paths " + i + " (" + k + ") " + j
+	    	    			  + " " + pathToString(endingBlocks) + ")");
+	    			  if (commandResult.matches(validPathsPattern)) {
+	    				  ArrayList<ArrayList<Integer>> noiCases = xmlStringToRawPath(commandResult);
+	    				  // Record if the NOI is "independent"
+	    				  if (noiCases.size() > 1) {
+	    					  independentNOIs.add(k);
+	    				  }
+	    				  for (ArrayList<Integer> noiCase: noiCases) {
+	    					  Boolean alreadyCovered = false;
+	    					  for (ArrayList<Integer> rawCase: rawCases) {
+	    						  if (rawCase.equals(noiCase)) {
+	    							  alreadyCovered = true;
+	    							  break;
+	    						  }
+	    					  }
+	    					  if (!alreadyCovered) {
+	    						  rawCases.add(noiCase);
+	    					  }
+	    				  }
+	    			  }
+	    		  }
+	    		  // Add pairwise "independent" NOIs here
+//	    		  for (Integer ii = 0; ii < independentNOIs.size(); ii++) {
+//	    			  for (Integer jj = ii + 1; jj < independentNOIs.size(); jj++) {
+//	    				  commandResult = sbcl.sendCommand("(find-test-paths " + i + " (" + independentNOIs.get(ii)
+//	    				  + " " + independentNOIs.get(jj) + ") " + j
+//		    			  + " " + pathToString(endingBlocks) + ")");
+//	    				  if (commandResult.matches(validPathsPattern)) {
+//	    					  ArrayList<ArrayList<Integer>> noiCases = xmlStringToRawPath(commandResult);
+//	    					  for (ArrayList<Integer> noiCase: noiCases) {
+//		    					  Boolean alreadyCovered = false;
+//		    					  for (ArrayList<Integer> rawCase: rawCases) {
+//		    						  if (rawCase.equals(noiCase)) {
+//		    							  alreadyCovered = true;
+//		    							  break;
+//		    						  }
+//		    					  }
+//		    					  if (!alreadyCovered) {
+//		    						  rawCases.add(noiCase);
+//		    					  }
+//		    				  }
+//	    				  }
+//	    			  }
+//	    		  }
+	    	  }
+	    	  for (ArrayList<Integer> rawCase: rawCases) {
+	    		  result.add(rawCase);
+	    	  }
+	      }
+	    }
+	  System.out.println("Now do reversions and references");
+	  // Add things from reversions/references not already covered
+	  ArrayList<Integer> revBlocks = new ArrayList<Integer>();
+	  for (Integer i: endingBlocks) {
+		  Boolean found = false;
+		  for (Integer j: startingBlocks) {
+			  if (i == j) {
+				  found = true;
+				  break;
+			  }
+		  }
+		  if (!found) {
+			  revBlocks.add(i);
+		  }
+	  }
+	  for (Integer i: revBlocks) {
+		  for (Integer j: endingBlocks) {
+			  Boolean feasible = false;
+	    	  ArrayList<ArrayList<Integer>> rawCases = new ArrayList<ArrayList<Integer>>();
+	    	  ArrayList<Integer> independentNOIs = new ArrayList<Integer>();
+	    	  // First do without NOIs
+	    	  String commandResult = sbcl.sendCommand("(find-test-paths " + i + " () " + j
+	    			  + " " + pathToString(endingBlocks) + ")");
+	    	  if (commandResult.matches(validPathsPattern)) {
+	    		  feasible = true;
+	    		  rawCases = xmlStringToRawPath(commandResult);
+	    	  }
+	    	  if (feasible) {
+	    		// Now do with NOIs one by one
+	    		  for (Integer k: noiBlocks) {
+	    			  commandResult = sbcl.sendCommand("(find-test-paths " + i + " (" + k + ") " + j
+	    	    			  + " " + pathToString(endingBlocks) + ")");
+	    			  if (commandResult.matches(validPathsPattern)) {
+	    				  ArrayList<ArrayList<Integer>> noiCases = xmlStringToRawPath(commandResult);
+	    				  // Record if the NOI is "independent"
+	    				  if (noiCases.size() > 1) {
+	    					  independentNOIs.add(k);
+	    				  }
+	    				  for (ArrayList<Integer> noiCase: noiCases) {
+	    					  Boolean alreadyCovered = false;
+	    					  for (ArrayList<Integer> rawCase: rawCases) {
+	    						  if (rawCase.equals(noiCase)) {
+	    							  alreadyCovered = true;
+	    							  break;
+	    						  }
+	    					  }
+	    					  if (!alreadyCovered) {
+	    						  rawCases.add(noiCase);
+	    					  }
+	    				  }
+	    			  }
+	    		  }
+	    		  // Add pairwise "independent" NOIs here
+//	    		  for (Integer ii = 0; ii < independentNOIs.size(); ii++) {
+//	    			  for (Integer jj = ii + 1; jj < independentNOIs.size(); jj++) {
+//	    				  commandResult = sbcl.sendCommand("(find-test-paths " + i + " (" + independentNOIs.get(ii)
+//	    				  + " " + independentNOIs.get(jj) + ") " + j
+//		    			  + " " + pathToString(endingBlocks) + ")");
+//	    				  if (commandResult.matches(validPathsPattern)) {
+//	    					  ArrayList<ArrayList<Integer>> noiCases = xmlStringToRawPath(commandResult);
+//	    					  for (ArrayList<Integer> noiCase: noiCases) {
+//		    					  Boolean alreadyCovered = false;
+//		    					  for (ArrayList<Integer> rawCase: rawCases) {
+//		    						  if (rawCase.equals(noiCase)) {
+//		    							  alreadyCovered = true;
+//		    							  break;
+//		    						  }
+//		    					  }
+//		    					  if (!alreadyCovered) {
+//		    						  System.out.println("***** Found test case with independent NOIs");
+//		    						  rawCases.add(noiCase);
+//		    					  }
+//		    				  }
+//	    				  }
+//	    			  }
+//	    		  }
+		    	  for (ArrayList<Integer> rawCase: rawCases) {
+		    		  Boolean found = false;
+		    		  for (ArrayList<Integer> foundCase: result) {
+		    			  if (equivalentCases(rawCase,foundCase)) {
+		    				  found = true;
+		    				  break;
+		    			  }
+		    		  }
+		    		  if (!found) {
+		    			  System.out.println("***** Added test case from reversion/reference");
+		    			  result.add(rawCase);
+		    		  }
+		    		  
+		    	  }
+	    	  }
+		  }
+	  }
+	  return result;
+  }
+ 
   private static void printErrorMessage(String error) {
     int errorIndex =
         Integer.parseInt(error.substring(error.indexOf('|') + 1, error.lastIndexOf('|')));
