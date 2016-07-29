@@ -44,8 +44,9 @@ public final class Constants {
   // 8 spaces
   public static final String tabSpacing = "        ";
 
+  // INTERNAL-OUTPUT no longer allowed as OR
   public static final ArrayList<String> acceptedORBehaviourTypes = new ArrayList<String>(
-      Arrays.asList("STATE-REALISATION", "EXTERNAL-OUTPUT", "INTERNAL-OUTPUT"));
+      Arrays.asList("STATE-REALISATION", "EXTERNAL-OUTPUT"));
 
   public static final ArrayList<String> acceptedUABehaviourTypes =
       new ArrayList<String>(Arrays.asList("EXTERNAL-INPUT", "EVENT"));
