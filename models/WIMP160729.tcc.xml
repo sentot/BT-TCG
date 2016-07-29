@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config version="0.2" filepath="~/Projects/BT-TCG/models/WIMP160729.btc">
+  <NOI>
+    <node-profile component="Warning" behaviour="msgDisplayed" behaviour-type="STATE-REALISATION" kill-flag="false" />
+  </NOI>
+  <CP>
+    <node-profile component="UI" behaviour="refreshed" behaviour-type="STATE-REALISATION" kill-flag="false" />
+    <initial component="UI" behaviour="refreshed" behaviour-type="STATE-REALISATION" kill-flag="false" />
+  </CP>
+  <OR>
+    <node-profile component="ToolX" behaviour="iconDisplayed" behaviour-type="STATE-REALISATION" kill-flag="false" observation="The ToolX icon is displayed" />
+    <node-profile component="Warning" behaviour="notDisplayed" behaviour-type="STATE-REALISATION" kill-flag="false" observation="No warning is displayed" />
+    <node-profile component="ToolX" behaviour="toolDisplayed" behaviour-type="STATE-REALISATION" kill-flag="false" observation="ToolX is displayed" />
+    <node-profile component="ToolX" behaviour="notesDisplayed" behaviour-type="STATE-REALISATION" kill-flag="false" observation="The ToolX description is displayed" />
+    <node-profile component="Warning" behaviour="iconDisplayed" behaviour-type="STATE-REALISATION" kill-flag="false" observation="the warning icon is displayed" />
+    <node-profile component="Warning" behaviour="msgDisplayed" behaviour-type="STATE-REALISATION" kill-flag="false" observation="The warning message is displayed" />
+  </OR>
+  <UA>
+    <node-profile component="User" behaviour="leftClick" behaviour-type="EVENT" kill-flag="false" action="Left click" preamble="false" />
+    <node-profile component="User" behaviour="holdLB" behaviour-type="EVENT" kill-flag="false" action="Hold left button" preamble="false" />
+    <node-profile component="User" behaviour="releaseLB" behaviour-type="EVENT" kill-flag="false" action="Release left button" preamble="false" />
+    <node-profile component="Pointer" behaviour="overTXicon" behaviour-type="EVENT" kill-flag="false" action="Move pointer over ToolX icon" preamble="false" />
+    <node-profile component="User" behaviour="closeToolX" behaviour-type="EVENT" kill-flag="false" action="Close ToolX" preamble="false" />
+    <node-profile component="System" behaviour="warningMsg" behaviour-type="EXTERNAL-INPUT" kill-flag="false" action="Trigger a warning" preamble="false" />
+    <node-profile component="Pointer" behaviour="overWarning" behaviour-type="EVENT" kill-flag="false" action="Move pointer over Warning" preamble="false" />
+    <node-profile component="Pointer" behaviour="offWarning" behaviour-type="EVENT" kill-flag="false" action="Move pointer off Warning message" preamble="false" />
+    <node-profile component="System" behaviour="warningEnd" behaviour-type="EXTERNAL-INPUT" kill-flag="false" action="Cause warning to end" preamble="false" />
+  </UA>
+</config>

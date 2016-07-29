@@ -1,0 +1,114 @@
+#RT R0 0 R1 1 R2 2 R3 3 R4 4 R5 5 R6 6 R7 7 R8 8 R9 9 R10 10 R11 11 R12 12 R13 13 R14 14 R15 15 R16 16 R17 17 R18 18 R19 19 R20 20 R21 21 R22 22 R23 23 R24 24 R24a 24a R25 25 R25a 25a R26 26 R27a 27a R27 27 R28 28 R29 29 R30 30 R31 31
+
+#C C0 Root
+#S 1 main
+#S 2 freshUI
+
+#C C1 User
+#E 11 leftClick
+#E 12 holdLB
+#E 13 releaseLB
+#E 21 rightClick
+#E 22 holdRB
+#E 23 releaseRB
+#E 42 holdCK
+#E 43 releaseCK
+#E 81 closeToolX
+#E 82 closeToolY
+
+#C C2 Pointer
+#E 1 overTXicon
+#E 2 overTYicon
+#E 3 overWarning
+#E 31 offWarning
+
+#C C3 Buttons
+#S 1 noneHeld
+#G 2 noneHeld
+#S 10 LBheld
+#IO 11 LBclicked
+#IO 12 LBheld
+#IO 13 LBreleased
+#IO 14 LBdrag
+#S 20 RBheld
+#IO 21 RBclicked
+#IO 22 RBheld
+#IO 23 RBreleased
+#IO 24 RBreleased-CKheld
+#S 40 CKheld
+#IO 42 CKheld
+#IO 43 CKreleased
+#IO 44 LBclicked-CKheld
+#S 5 CK-RBheld
+
+#C C4 ToolX
+#S 1 iconDisplayed
+#S 2 toolDisplayed
+#S 3 notesDisplayed
+
+#C C5 ToolY
+#S 1 iconDisplayed
+#S 2 toolDisplayed
+#S 3 notesDisplayed
+
+#C C6 Warning
+#S 1 notDisplayed
+#S 2 iconDisplayed
+#S 3 msgDisplayed
+
+
+#C C7 System
+#EI 1 warningMsg
+#EI 2 warningEnd
+
+#C C99 UI
+#S 1 refreshed
+#II 11 LBclicked
+#II 12 LBheld
+#II 13 LBreleased
+#II 14 LBdrag
+#II 21 RBclicked
+#II 22 RBheld
+#II 23 RBreleased
+#II 24 RBreleased-CKheld
+#II 31 CBclicked
+#II 42 CKheld
+#II 43 CKreleased
+#II 44 LBclicked-CKheld
+
+
+#T R0 C0 1;; R1 C4 1;; R1 C6 1 #P{
+R1 C3 1 #N{
+	R2 + C1 11; R2 C3 11; R1 C3 1 ^
+//	R3 + C1 21; R3 C3 21; R1 C3 1 ^
+	R5 + C1 12; R5 C3 12; R5 C3 10; R5 + C1 13; R5 C3 13; R1 C3 1 ^
+//	R6 + C1 22; R6 C3 22; R6 C3 20 #N{
+//		R6 + C1 23; R6 C3 23; R1 C3 1 ^
+//		R6 + C1 42; R6 C3 5 #N{
+//			R6 + C1 23; R6 C3 24; R6 C3 40 =>
+//			R6 + C1 43; R6 C3 20 ^
+//			}
+//		}
+//	R7 + C1 42; R7 C3 40 #N{
+//		R7 + C1 43; R1 C3 1 ^
+//		R7 + C1 11; R7 C3 44; R7 C3 40 ^
+//		}
+	}
+R0 C3 2; R1 C99 1 #N{
+	R8 + C2 1 #N{
+		R8 + C99 11; R8 + C4 2; R8 +- C1 81; R8 +- C4 1; R0 C3 2 ^
+		R8 + C99 12; R8 + C4 3; R8 + C99 13; R8 + C4 1; R0 C3 2 ^
+		}
+//	R9 + C2 2 #N{
+//	 R9 + C99 11; R9 + C5 2; R9 +- C1 82; R9 +- C5 1; R0 C3 2 ^
+//		R9 + C99 12; R9 + C5 3; R9 +- C1 13; R9 +- C5 1; R0 C3 2 ^
+//		}
+	R10 +- C7 1; R10 ++ C6 2 #P{
+		R10 + C2 3; R10 + C6 3; R10 + C2 31; R10 + C6 2 ^
+		R11 +- C7 2; R10 C2 3 --;; R11 +- C6 1; R0 C3 2 ^
+		}
+	}
+}
+
+
+
